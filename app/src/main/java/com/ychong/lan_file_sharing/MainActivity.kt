@@ -25,8 +25,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var client: FTPClient
     private lateinit var adapter: FileListAdapter
-    private var fileList: List<String> = ArrayList<String>
+    private var fileList: MutableList<FileBean> = ArrayList<FileBean>()
     private val localPath = Environment.getExternalStorageDirectory().absolutePath
+    private var operationPosition=0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -58,19 +59,21 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
         binding.recyclerView.adapter = adapter
         adapter.setFileItemClickListener(object : FileListAdapter.FileItemClickListener {
-            override fun onClick(file: String) {
+            override fun onClick(file: FileBean) {
+                operationPosition = fileList.indexOf(file);
                 Thread(Runnable {
                     val result = downFile(
                         binding.ftpIpEt.text.toString(),
                         binding.ftpPortEt.text.toString().toInt(),
                         binding.accountEt.text.toString(),
                         binding.passwordEt.text.toString(),
-                        "/", file, localPath
+                        "/", file.fileName, localPath
                     )
 
                     val message = Message.obtain()
                     message.what = 1
-                    message.obj = result
+                    val fileBean = FileBean(file.fileName,result)
+                    message.obj = fileBean
                     handler.sendMessage(message)
                 }).start()
 
@@ -87,13 +90,16 @@ class MainActivity : AppCompatActivity() {
             when(msg.what){
                 0 ->{
                     val files = msg.obj as Array<String>
-                    fileList = files.asList()
+                    for (item in files){
+                        fileList.add(FileBean(item))
+                    }
                     adapter.notifyDataSetChanged()
                 }
                 1->{
-                    val result = msg.obj as Boolean
-                    if (result){
-
+                    val fileBean = msg.obj as FileBean
+                    if (fileBean.isDownload){
+                        Toast.makeText(this@MainActivity,"下载成功",Toast.LENGTH_SHORT).show()
+                        adapter.notifyItemChanged(operationPosition,fileBean)
                     }
                 }
             }
@@ -110,14 +116,6 @@ class MainActivity : AppCompatActivity() {
         var result = false
         try {
             client.controlEncoding = System.getProperty("file.encoding")
-
-            /*
-             *  为了上传和下载中文文件，有些地方建议使用以下两句代替
-             *  new String(remotePath.getBytes(encoding),"iso-8859-1")转码。
-             *  经过测试，通不过。
-             */
-//            FTPClientConfig conf = new FTPClientConfig(FTPClientConfig.SYST_NT);
-//            conf.setServerLanguageCode("zh");
             if (!client.isConnected) {
                 client.connect(url, port)
                 // 如果采用默认端口，可以使用ftp.connect(url)的方式直接连接FTP服务器
