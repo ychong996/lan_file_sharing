@@ -121,6 +121,41 @@ class FtpUtils {
         return result
     }
 
+    fun delete(fileName:String):Boolean{
+        val result = false
+        try {
+        client!!.controlEncoding = System.getProperty("file.encoding")
+        if (!client!!.isConnected) {
+            client!!.connect(this.host, this.port)
+            // 如果采用默认端口，可以使用ftp.connect(url)的方式直接连接FTP服务器
+            client!!.login(this.account, this.password) // 登录
+        }
+
+        // 设置文件传输类型为二进制
+        client!!.setFileType(FTPClient.BINARY_FILE_TYPE)
+        // 获取ftp登录应答代码
+        val reply: Int = client!!.replyCode
+        // 验证是否登陆成功
+        if (!FTPReply.isPositiveCompletion(reply)) {
+            client!!.disconnect()
+            System.err.println("FTP server refused connection.")
+            return result
+        }
+        val remotePath = "/"
+        // 转移到FTP服务器目录至指定的目录下
+        client!!.changeWorkingDirectory(
+            String(
+                remotePath.toByteArray(Charset.forName("UTF-8")),
+                Charset.forName("iso-8859-1")
+            )
+        )
+        return client!!.deleteFile(fileName)
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
+        return false
+    }
+
     fun destroy() {
         client!!.logout()
         client = null

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/md_grey_100"
+    android:layout_gravity="center"
+
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <TextView
+        android:visibility="gone"
+        android:background="@drawable/tv_bg_selector"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="下载"
+        android:id="@+id/downloadTv"/>
+    <TextView
+        android:visibility="gone"
+        android:background="@drawable/tv_bg_selector"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/downloadTv"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="安装"
+        android:id="@+id/installTv"/>
+    <TextView
+        android:visibility="gone"
+        android:background="@drawable/tv_bg_selector"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/installTv"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="查看"
+        android:id="@+id/seeTv"/>
+    <TextView
+        android:visibility="gone"
+        android:background="@drawable/tv_bg_selector"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/seeTv"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="删除"
+        android:textColor="#FF0000"
+        android:id="@+id/deleteTv"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

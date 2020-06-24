@@ -1,6 +1,7 @@
 package com.ychong.lan_file_sharing
 
 import java.io.File
+import java.lang.Exception
 
 class FileUtils {
     companion object {
@@ -18,5 +19,17 @@ class FileUtils {
             }
         }
         return false
+    }
+    fun deleteFile(localDir: String,fileName: String):Boolean{
+        try {
+            val file = File(localDir+fileName)
+            if (file.exists()){
+                return file.delete()
+            }
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
+        return false
+
     }
 }
