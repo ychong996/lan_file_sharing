@@ -1,4 +1,4 @@
-package com.ychong.lan_file_sharing
+package com.ychong.lan_file_sharing.common
 
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable

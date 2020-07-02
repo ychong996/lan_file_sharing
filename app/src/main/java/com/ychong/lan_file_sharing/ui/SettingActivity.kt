@@ -1,9 +1,12 @@
-package com.ychong.lan_file_sharing
+package com.ychong.lan_file_sharing.ui
 
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import com.ychong.lan_file_sharing.common.BaseConstant
+import com.ychong.lan_file_sharing.R
 import com.ychong.lan_file_sharing.databinding.ActivitySettingBinding
+import com.ychong.lan_file_sharing.utils.SPUtils
 
 class SettingActivity:AppCompatActivity(), View.OnClickListener {
     private lateinit var binding: ActivitySettingBinding
@@ -21,10 +24,14 @@ class SettingActivity:AppCompatActivity(), View.OnClickListener {
     }
 
     private fun initData() {
+
         binding.headInclude.titleTv.text = "设置"
         binding.headInclude.leftTv.visibility = View.VISIBLE
         binding.headInclude.rightTv.visibility = View.VISIBLE
         binding.headInclude.rightTv.text = "保存"
+
+        binding.ftpIpEt.setText(SPUtils.getInstance(this).getString(BaseConstant.SP_FTP_IP))
+        binding.ftpPortEt.setText(SPUtils.getInstance(this).getInt(BaseConstant.SP_FTP_PORT))
     }
 
     private fun initLayout() {
@@ -46,7 +53,7 @@ class SettingActivity:AppCompatActivity(), View.OnClickListener {
     }
 
     private fun save(){
-        SPUtils.getInstance(this).putString("FTP_IP",binding.ftpIpEt.text.toString())
-        SPUtils.getInstance(this).putInt("FTP_PORT",binding.ftpPortEt.text.toString().toInt())
+        SPUtils.getInstance(this).putString(BaseConstant.SP_FTP_IP,binding.ftpIpEt.text.toString())
+        SPUtils.getInstance(this).putInt(BaseConstant.SP_FTP_PORT,binding.ftpPortEt.text.toString().toInt())
     }
 }

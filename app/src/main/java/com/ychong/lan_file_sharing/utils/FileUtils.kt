@@ -1,4 +1,4 @@
-package com.ychong.lan_file_sharing
+package com.ychong.lan_file_sharing.utils
 
 import java.io.File
 import java.lang.Exception

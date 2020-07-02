@@ -1,4 +1,4 @@
-package com.ychong.lan_file_sharing
+package com.ychong.lan_file_sharing.ui
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -6,7 +6,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.scwang.smartrefresh.layout.api.RefreshLayout
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener
+import com.ychong.lan_file_sharing.data.FileBean
+import com.ychong.lan_file_sharing.adapter.FileListAdapter
+import com.ychong.lan_file_sharing.base.ItemTouchHelperCallback
 import com.ychong.lan_file_sharing.databinding.ActivityFileManagerBinding
+import com.ychong.lan_file_sharing.utils.FtpUtils
 import io.reactivex.Observable
 import io.reactivex.ObservableOnSubscribe
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -29,7 +33,9 @@ class FileManagerActivity : AppCompatActivity(), OnRefreshListener {
     }
     private fun initData(){
         binding.headInclude.titleTv.text = "文件管理"
-        adapter = FileListAdapter(this, fileList)
+
+        adapter =
+            FileListAdapter(this, fileList)
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
         binding.refreshLayout.setOnRefreshListener(this)

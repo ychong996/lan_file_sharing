@@ -1,34 +1,20 @@
-package com.ychong.lan_file_sharing
+package com.ychong.lan_file_sharing.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.os.Environment
-import android.os.Handler
-import android.os.Message
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.scwang.smartrefresh.layout.api.RefreshLayout
-import com.scwang.smartrefresh.layout.listener.OnRefreshListener
+import com.ychong.lan_file_sharing.common.CustomException
+import com.ychong.lan_file_sharing.R
 import com.ychong.lan_file_sharing.databinding.ActivityMainBinding
+import com.ychong.lan_file_sharing.utils.FtpUtils
+import com.ychong.lan_file_sharing.utils.SPUtils
 import io.reactivex.Observable
-import io.reactivex.ObservableEmitter
 import io.reactivex.ObservableOnSubscribe
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.functions.Consumer
-import io.reactivex.functions.Function
 import io.reactivex.schedulers.Schedulers
-import org.apache.commons.net.ftp.FTPClient
-import org.apache.commons.net.ftp.FTPFile
-import org.apache.commons.net.ftp.FTPReply
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.OutputStream
-import java.nio.charset.Charset
 
 
 class LoginActivity : AppCompatActivity(), View.OnClickListener {
@@ -61,7 +47,8 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
     override fun onClick(p0: View?) {
         when(p0!!.id){
             R.id.rightTv ->{
-                startActivity(Intent(this,SettingActivity::class.java))
+                startActivity(Intent(this,
+                    SettingActivity::class.java))
             }
             R.id.loginBtn ->{
                 login()
@@ -76,18 +63,27 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
             if (isConnect){
                 emitter.onNext(isConnect)
             }else{
-                emitter.onError(CustomException("FTP连接失败"))
+                emitter.onError(
+                    CustomException(
+                        "FTP连接失败"
+                    )
+                )
             }
         }).flatMap {
             if (FtpUtils.instance.login(account,password)){
                 Observable.just(true)
             }else{
-                Observable.error(CustomException("FTP登陆失败"))
+                Observable.error(
+                    CustomException(
+                        "FTP登陆失败"
+                    )
+                )
             }
         }.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
-                startActivity(Intent(this,FileManagerActivity::class.java))
+                startActivity(Intent(this,
+                    FileManagerActivity::class.java))
                 finish()
             }
     }

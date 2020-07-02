@@ -1,9 +1,8 @@
-package com.ychong.lan_file_sharing
+package com.ychong.lan_file_sharing.utils
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import android.media.MediaCodec.MetricsConstants.MODE
 
 class SPUtils{
     private var sp: SharedPreferences? = null
@@ -18,12 +17,13 @@ class SPUtils{
     }
     companion object{
         @Volatile
-        private var instance:SPUtils?=null
-        fun getInstance(context: Context):SPUtils{
+        private var instance: SPUtils?=null
+        fun getInstance(context: Context): SPUtils {
             if (instance == null){
                 synchronized(SPUtils::class){
                     if (instance == null){
-                        instance = SPUtils(context)
+                        instance =
+                            SPUtils(context)
                     }
                 }
             }

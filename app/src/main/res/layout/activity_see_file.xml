@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <include layout="@layout/layout_head"/>
-    <LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/layout_head" />
+
+    <FrameLayout
+        android:id="@+id/wvLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/wvLayout"
-        android:orientation="vertical"/>
+        android:background="@color/md_green_A100"
+        android:orientation="vertical">
+
+        <WebView
+            android:background="@color/md_red_A700"
+            android:id="@+id/webView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="none" />
+    </FrameLayout>
 </LinearLayout>

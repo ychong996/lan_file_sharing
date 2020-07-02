@@ -1,7 +1,6 @@
-package com.ychong.lan_file_sharing
+package com.ychong.lan_file_sharing.utils
 
 import android.os.Environment
-import android.util.Log
 import org.apache.commons.net.ftp.FTPClient
 import org.apache.commons.net.ftp.FTPFile
 import org.apache.commons.net.ftp.FTPReply
@@ -11,7 +10,6 @@ import java.io.IOException
 import java.io.OutputStream
 import java.lang.Exception
 import java.nio.charset.Charset
-import java.util.*
 
 class FtpUtils {
     private var client: FTPClient? = null
