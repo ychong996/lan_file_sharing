@@ -1,14 +1,20 @@
 package com.ychong.lan_file_sharing.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import com.ychong.lan_file_sharing.R
+import com.ychong.lan_file_sharing.common.BaseConstant
 import com.ychong.lan_file_sharing.common.network.ApiService
 import com.ychong.lan_file_sharing.common.network.RetrofitFactory
+import com.ychong.lan_file_sharing.data.BaseResp
+import com.ychong.lan_file_sharing.data.LoginResp
 import com.ychong.lan_file_sharing.databinding.ActivityLoginBinding
+import com.ychong.lan_file_sharing.utils.SPUtils
 import io.reactivex.Observer
 import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -61,15 +67,22 @@ class LoginAct : AppCompatActivity(), View.OnClickListener {
         RetrofitFactory.instance.create(ApiService::class.java).login(body)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : Observer<ResponseBody>{
+            .subscribe(object : Observer<BaseResp<LoginResp>>{
                 override fun onComplete() {
                 }
 
                 override fun onSubscribe(d: Disposable) {
                 }
 
-                override fun onNext(t: ResponseBody) {
-                    Log.e("登陆成功",t.string())
+                override fun onNext(baseResp: BaseResp<LoginResp>) {
+                    Log.e("登陆返回数据",baseResp.toString())
+                    if (baseResp.success){
+                        saveData(baseResp.resultBody)
+                        startActivity(Intent(this@LoginAct,MainActivity::class.java))
+                        finish()
+                    }else{
+                        Toast.makeText(this@LoginAct,baseResp.errorMsg,Toast.LENGTH_SHORT).show()
+                    }
                 }
 
                 override fun onError(e: Throwable) {
@@ -77,7 +90,12 @@ class LoginAct : AppCompatActivity(), View.OnClickListener {
                 }
 
             })
-
+    }
+    private fun saveData(loginResp: LoginResp){
+        SPUtils.getInstance(this).putString(BaseConstant.SP_FTP_ACCOUNT,loginResp.ftpAccount)
+        SPUtils.getInstance(this).putString(BaseConstant.SP_FTP_PASSWORD,loginResp.ftpPassword)
+        SPUtils.getInstance(this).putString(BaseConstant.SP_FTP_IP,loginResp.ftpIp)
+        SPUtils.getInstance(this).putInt(BaseConstant.SP_FTP_PORT,loginResp.ftpPort)
 
     }
 

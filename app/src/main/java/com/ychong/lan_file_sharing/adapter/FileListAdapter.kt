@@ -17,6 +17,7 @@ import com.ychong.lan_file_sharing.data.FileBean
 import com.ychong.lan_file_sharing.databinding.ItemFileBinding
 import com.ychong.lan_file_sharing.databinding.LayoutListFooterBinding
 import com.ychong.lan_file_sharing.databinding.LayoutListHeaderBinding
+import com.ychong.lan_file_sharing.service.DownloadService
 import com.ychong.lan_file_sharing.ui.SeeFileActivity
 import com.ychong.lan_file_sharing.utils.ApkUtils
 import com.ychong.lan_file_sharing.utils.FileUtils
@@ -31,6 +32,15 @@ class FileListAdapter(private val activity: Activity, private val files: Mutable
     BaseRecyclerAdapter<FileBean>(files) {
     private val localPath =
         Environment.getExternalStorageDirectory().absolutePath + "/lan_file_sharing/"
+
+    fun setData(list: MutableList<FileBean>) {
+        this.files.addAll(list)
+        notifyDataSetChanged()
+    }
+    fun clearData(){
+        this.files.clear()
+        notifyDataSetChanged()
+    }
 
     private var popupWindow: PopupWindow = PopupWindow()
     private fun showPopupWindow(view: View, position: Int) {
@@ -49,7 +59,7 @@ class FileListAdapter(private val activity: Activity, private val files: Mutable
         }
         val item = files[position]
         if (item.isDownload) {
-            if (item.ftpFile.name.substring(item.ftpFile.name.lastIndexOf(".")) == ".apk") {
+            if (item.fileType == ".apk") {
                 installTv.visibility = View.VISIBLE
             } else {
                 seeTv.visibility = View.VISIBLE
@@ -62,30 +72,33 @@ class FileListAdapter(private val activity: Activity, private val files: Mutable
             if (popupWindow.isShowing) {
                 popupWindow.dismiss()
             }
-            Observable.create(ObservableOnSubscribe<Boolean> { emitter ->
-                val result = FtpUtils.instance.download(item.ftpFile)
-                if (result) {
-                    emitter.onNext(result)
-                } else {
-                    emitter.onError(
-                        CustomException(
-                            "下载文件失败"
-                        )
-                    )
-                }
-            }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    item.isDownload = true
-                    item.localPath = localPath + item.ftpFile.name
-                    notifyItemChanged(position)
-                }
+            val serviceIntent = Intent(activity,DownloadService::class.java)
+            serviceIntent.putExtra("FileName",item.name)
+            activity.startService(serviceIntent)
+//            Observable.create(ObservableOnSubscribe<Boolean> { emitter ->
+//                val result = FtpUtils.instance.download(item.name)
+//                if (result) {
+//                    emitter.onNext(result)
+//                } else {
+//                    emitter.onError(
+//                        CustomException(
+//                            "下载文件失败"
+//                        )
+//                    )
+//                }
+//            }).subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe {
+//                    item.isDownload = true
+//                    item.localPath = localPath + item.name
+//                    notifyItemChanged(position)
+//                }
         }
         installTv.setOnClickListener {
             if (popupWindow.isShowing) {
                 popupWindow.dismiss()
             }
-            if (item.ftpFile.name.substring(item.ftpFile.name.lastIndexOf(".")) == ".apk") {
+            if (item.fileType == ".apk") {
                 ApkUtils.instance.installApk(activity, File(item.localPath))
             }
         }
@@ -105,8 +118,8 @@ class FileListAdapter(private val activity: Activity, private val files: Mutable
                 popupWindow.dismiss()
             }
             Observable.create(ObservableOnSubscribe<Boolean> { emitter ->
-                if (FileUtils.instance.deleteFile(localPath, item.ftpFile.name)
-                    && FtpUtils.instance.delete(item.ftpFile.name)
+                if (FileUtils.instance.deleteFile(localPath, item.name)
+                    && FtpUtils.instance.delete(item.name)
                 ) {
                     emitter.onNext(true)
                 } else {
@@ -157,10 +170,10 @@ class FileListAdapter(private val activity: Activity, private val files: Mutable
     override fun convert(holder: ItemViewHolder, position: Int) {
         val item = files[position]
         val binding = holder.binding as ItemFileBinding
-        binding.fileNameTv.text = item.ftpFile.name
-        if (FileUtils.instance.existsFile(localPath, item.ftpFile.name)) {
+        binding.fileNameTv.text = item.name
+        if (FileUtils.instance.existsFile(localPath, item.name)) {
             item.isDownload = true
-            item.localPath = localPath + item.ftpFile.name
+            item.localPath = localPath + item.name
         }
         binding.operationBtn.setOnClickListener {
             showPopupWindow(binding.operationBtn, position)

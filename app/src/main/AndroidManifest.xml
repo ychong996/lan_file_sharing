@@ -44,6 +44,7 @@
         <activity android:name=".ui.FileManagerActivity" />
         <activity android:name=".ui.SeeFileActivity" />
         <activity android:name=".ui.LoginActivity" />
+        <activity android:name=".ui.MainActivity" />
 
         <provider
             android:authorities="com.ychong.lan_file_sharing.fileProvider"

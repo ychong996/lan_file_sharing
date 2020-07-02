@@ -17,7 +17,8 @@ class FtpUtils {
     private lateinit var password: String
     private lateinit var host: String
     private var port: Int = 0
-    private val localPath = Environment.getExternalStorageDirectory().absolutePath+"/lan_file_sharing/"
+    private val localPath =
+        Environment.getExternalStorageDirectory().absolutePath + "/lan_file_sharing/"
 
     companion object {
         val instance: FtpUtils by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) { FtpUtils() }
@@ -64,9 +65,9 @@ class FtpUtils {
         return client!!.listFiles()
     }
 
-    fun download(targetFile: FTPFile): Boolean {
+    fun download(targetFileName: String): Boolean {
         var result = false
-        if (FileUtils.instance.existsFile(localPath,targetFile.name)){
+        if (FileUtils.instance.existsFile(localPath, targetFileName)) {
             result = true
             return result
         }
@@ -97,13 +98,13 @@ class FtpUtils {
                 )
             )
             val dirFile = File(localPath)
-            if (!dirFile.exists()){
+            if (!dirFile.exists()) {
                 dirFile.mkdir()
             }
-            val localFile = File(localPath + targetFile.name)
+            val localFile = File(localPath + targetFileName)
 
             val `is`: OutputStream = FileOutputStream(localFile)
-            client!!.retrieveFile(targetFile.name, `is`)
+            client!!.retrieveFile(targetFileName, `is`)
             `is`.close()
             result = true
         } catch (e: IOException) {
@@ -119,36 +120,36 @@ class FtpUtils {
         return result
     }
 
-    fun delete(fileName:String):Boolean{
+    fun delete(fileName: String): Boolean {
         val result = false
         try {
-        client!!.controlEncoding = System.getProperty("file.encoding")
-        if (!client!!.isConnected) {
-            client!!.connect(this.host, this.port)
-            // 如果采用默认端口，可以使用ftp.connect(url)的方式直接连接FTP服务器
-            client!!.login(this.account, this.password) // 登录
-        }
+            client!!.controlEncoding = System.getProperty("file.encoding")
+            if (!client!!.isConnected) {
+                client!!.connect(this.host, this.port)
+                // 如果采用默认端口，可以使用ftp.connect(url)的方式直接连接FTP服务器
+                client!!.login(this.account, this.password) // 登录
+            }
 
-        // 设置文件传输类型为二进制
-        client!!.setFileType(FTPClient.BINARY_FILE_TYPE)
-        // 获取ftp登录应答代码
-        val reply: Int = client!!.replyCode
-        // 验证是否登陆成功
-        if (!FTPReply.isPositiveCompletion(reply)) {
-            client!!.disconnect()
-            System.err.println("FTP server refused connection.")
-            return result
-        }
-        val remotePath = "/"
-        // 转移到FTP服务器目录至指定的目录下
-        client!!.changeWorkingDirectory(
-            String(
-                remotePath.toByteArray(Charset.forName("UTF-8")),
-                Charset.forName("iso-8859-1")
+            // 设置文件传输类型为二进制
+            client!!.setFileType(FTPClient.BINARY_FILE_TYPE)
+            // 获取ftp登录应答代码
+            val reply: Int = client!!.replyCode
+            // 验证是否登陆成功
+            if (!FTPReply.isPositiveCompletion(reply)) {
+                client!!.disconnect()
+                System.err.println("FTP server refused connection.")
+                return result
+            }
+            val remotePath = "/"
+            // 转移到FTP服务器目录至指定的目录下
+            client!!.changeWorkingDirectory(
+                String(
+                    remotePath.toByteArray(Charset.forName("UTF-8")),
+                    Charset.forName("iso-8859-1")
+                )
             )
-        )
-        return client!!.deleteFile(fileName)
-        }catch (e:Exception){
+            return client!!.deleteFile(fileName)
+        } catch (e: Exception) {
             e.printStackTrace()
         }
         return false

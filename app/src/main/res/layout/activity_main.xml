@@ -5,33 +5,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.LoginActivity"
+    android:layout_gravity="center"
+    android:gravity="center"
     android:orientation="vertical">
    <include  android:id="@+id/headInclude" layout="@layout/layout_head"/>
-
-    <LinearLayout
-        android:id="@+id/accountPwdLayout"
+    <com.scwang.smartrefresh.layout.SmartRefreshLayout
+        android:layout_gravity="center"
+        android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <EditText
-            android:text="ychong"
+        android:layout_height="match_parent">
+        <com.scwang.smartrefresh.layout.header.ClassicsHeader
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:id="@+id/accountEt"
-            android:hint="输入用户名"/>
-        <EditText
-            android:text="ych123456"
+            android:layout_height="wrap_content"/>
+        <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:id="@+id/passwordEt"
-            android:hint="输入密码"/>
-    </LinearLayout>
-    <Button
-        app:layout_constraintTop_toBottomOf="@id/accountPwdLayout"
-        android:text="登录"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:id="@+id/loginBtn"/>
+            android:layout_height="match_parent"
+            android:id="@+id/recyclerView"/>
+    </com.scwang.smartrefresh.layout.SmartRefreshLayout>
 
 
 </LinearLayout>

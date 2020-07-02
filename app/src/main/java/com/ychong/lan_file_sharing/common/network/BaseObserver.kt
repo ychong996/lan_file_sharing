@@ -4,11 +4,11 @@ import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 import okhttp3.ResponseBody
 
-abstract class BaseObserver : Observer<ResponseBody>{
+abstract class BaseObserver<T> : Observer<T>{
     override fun onComplete() {
 
     }
-    override fun onNext(t: ResponseBody) {
+    override fun onNext(t: T) {
         success(t)
     }
 
@@ -20,6 +20,6 @@ abstract class BaseObserver : Observer<ResponseBody>{
 
     }
 
-    abstract fun success(t:ResponseBody)
+    abstract fun success(t:T)
     abstract fun error(e:Throwable)
 }

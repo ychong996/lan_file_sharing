@@ -8,10 +8,18 @@ import com.ychong.lan_file_sharing.databinding.ItemMenuBinding
 
 class MainRecyclerAdapter(var list: MutableList<MenuBean>) :
     RecyclerView.Adapter<MainRecyclerAdapter.MainViewHolder>() {
+    private lateinit var itemClickListener: ItemClickListener
+    fun setItemClickListener(itemClickListener: ItemClickListener) {
+        this.itemClickListener = itemClickListener
+    }
 
 
     public fun setData(list: MutableList<MenuBean>) {
         this.list.addAll(list)
+        notifyDataSetChanged()
+    }
+    fun clearData(){
+        this.list.clear()
         notifyDataSetChanged()
     }
 
@@ -34,7 +42,17 @@ class MainRecyclerAdapter(var list: MutableList<MenuBean>) :
     override fun onBindViewHolder(holder: MainRecyclerAdapter.MainViewHolder, position: Int) {
         val item = list[position]
         holder.binding.menuTv.text = item.name
+        holder.binding.menuTv.setOnClickListener {
+            itemClickListener.onClick(item)
+        }
     }
 
+    override fun getItemViewType(position: Int): Int {
+        return position
+    }
     class MainViewHolder(var binding: ItemMenuBinding) : RecyclerView.ViewHolder(binding.root)
+
+    interface ItemClickListener {
+        fun onClick(item: MenuBean)
+    }
 }

@@ -7,12 +7,14 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="ychong1"
         android:hint="输入账号"
         android:id="@+id/accountEt"/>
     <androidx.appcompat.widget.AppCompatEditText
         app:layout_constraintTop_toBottomOf="@id/accountEt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="123456"
         android:hint="输入密码"
         android:id="@+id/passwordEt"/>
     <Button
