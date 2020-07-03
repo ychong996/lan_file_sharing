@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import com.ychong.lan_file_sharing.R
+import com.ychong.lan_file_sharing.base.BaseActivity
 import com.ychong.lan_file_sharing.common.BaseConstant
 import com.ychong.lan_file_sharing.common.network.ApiService
 import com.ychong.lan_file_sharing.common.network.RetrofitFactory
@@ -25,23 +26,16 @@ import okhttp3.MediaType
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 
-class LoginAct : AppCompatActivity(), View.OnClickListener {
+class LoginAct : BaseActivity(), View.OnClickListener {
     private lateinit var binding: ActivityLoginBinding
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        initLayout()
-        initData()
-        initListener()
-    }
-    private fun initLayout(){
+     override fun initLayout(){
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
     }
-    private fun initData(){
+     override fun initData(){
 
     }
-    private fun initListener(){
+     override fun initListener(){
         binding.loginBtn.setOnClickListener(this)
 
     }

@@ -4,16 +4,20 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.scwang.smartrefresh.layout.api.RefreshLayout
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener
+import com.ychong.lan_file_sharing.R
 import com.ychong.lan_file_sharing.data.FileBean
 import com.ychong.lan_file_sharing.adapter.FileListAdapter
+import com.ychong.lan_file_sharing.base.BaseActivity
 import com.ychong.lan_file_sharing.base.ItemTouchHelperCallback
 import com.ychong.lan_file_sharing.common.BaseConstant
 import com.ychong.lan_file_sharing.common.CustomException
+import com.ychong.lan_file_sharing.common.EventMsg
 import com.ychong.lan_file_sharing.common.network.ApiService
 import com.ychong.lan_file_sharing.common.network.BaseObserver
 import com.ychong.lan_file_sharing.common.network.RetrofitFactory
@@ -25,32 +29,31 @@ import io.reactivex.Observable
 import io.reactivex.ObservableOnSubscribe
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.layout_head.view.*
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import java.io.File
 
-class FileManagerActivity : AppCompatActivity(), OnRefreshListener {
-    private var ftpPassword: String? = null
-    private var ftpAccount: String? = null
-    private var port: Int = -1
-    private var host: String? = null
+class FileManagerActivity : BaseActivity(), OnRefreshListener, View.OnClickListener {
     private lateinit var binding: ActivityFileManagerBinding
     private lateinit var adapter: FileListAdapter
-    private var fileList: MutableList<FileBean> = ArrayList<FileBean>()
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        initLayout()
-        initData()
-        initListener()
-    }
+    private var fileList: MutableList<FileBean> = ArrayList()
 
-    private fun initLayout() {
+     override fun initLayout() {
         binding = ActivityFileManagerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
     }
 
     @SuppressLint("CheckResult")
-    private fun initData() {
+     override fun initData() {
+        if (!EventBus.getDefault().isRegistered(this)){
+            EventBus.getDefault().register(this)
+        }
         binding.headInclude.titleTv.text = "文件管理"
+        binding.headInclude.rightTv.visibility = View.VISIBLE
+        binding.headInclude.rightTv.text = "添加"
         adapter =
             FileListAdapter(this, fileList)
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
@@ -60,38 +63,24 @@ class FileManagerActivity : AppCompatActivity(), OnRefreshListener {
 
     }
 
-    private fun initListener() {
+     override fun initListener() {
+         binding.headInclude.rightTv.setOnClickListener(this)
         binding.refreshLayout.setOnRefreshListener(this)
     }
 
-    private fun checkData(): Boolean {
-        ftpAccount = SPUtils.getInstance(this).getString(BaseConstant.SP_FTP_ACCOUNT)
-        ftpPassword = SPUtils.getInstance(this).getString(BaseConstant.SP_FTP_PASSWORD)
-        host = SPUtils.getInstance(this).getString(BaseConstant.SP_FTP_IP)
-        port = SPUtils.getInstance(this).getInt(BaseConstant.SP_FTP_PORT)
-
-        if (host.isNullOrEmpty()) {
-            Toast.makeText(this, "FTP地址有误，请检查", Toast.LENGTH_SHORT).show()
-            return false
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onEvent(eventMsg: EventMsg){
+        val type = eventMsg.type
+        if (type == "refresh"){
+            val msg = eventMsg.msg
+            if (msg == "fileList"){
+                adapter.notifyDataSetChanged()
+            }
         }
-        if (port == -1) {
-            Toast.makeText(this, "FTP端口有误，请检查", Toast.LENGTH_SHORT).show()
-            return false
-        }
-        if (ftpAccount.isNullOrEmpty()) {
-            Toast.makeText(this, "账号有误，请检查", Toast.LENGTH_SHORT).show()
-            return false
-        }
-        if (ftpPassword.isNullOrEmpty()) {
-            Toast.makeText(this, "密码有误，请检查", Toast.LENGTH_SHORT).show()
-            return false
-        }
-        return true
     }
-
     @SuppressLint("CheckResult")
     override fun onRefresh(refreshLayout: RefreshLayout) {
-        adapter.clearData()
+        //adapter.clearData()
         getFileList()
         refreshLayout.finishRefresh(300)
     }
@@ -103,7 +92,6 @@ class FileManagerActivity : AppCompatActivity(), OnRefreshListener {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : BaseObserver<BaseResp<MutableList<FileBean>>>() {
                 override fun success(t: BaseResp<MutableList<FileBean>>) {
-                    Log.e("文件列表返回数据 ",t.toString())
                     if (t.success) {
                         val list = t.resultBody
                         adapter.setData(list)
@@ -114,5 +102,20 @@ class FileManagerActivity : AppCompatActivity(), OnRefreshListener {
 
                 }
             })
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (EventBus.getDefault().isRegistered(this)){
+            EventBus.getDefault().unregister(this)
+        }
+    }
+
+    override fun onClick(p0: View?) {
+        when(p0!!.id){
+            R.id.rightTv ->{
+                startActivity(Intent(this,AddFileActivity::class.java))
+            }
+        }
     }
 }

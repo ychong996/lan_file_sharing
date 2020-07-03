@@ -17,7 +17,7 @@ import com.ychong.lan_file_sharing.data.FileBean
 import com.ychong.lan_file_sharing.databinding.ItemFileBinding
 import com.ychong.lan_file_sharing.databinding.LayoutListFooterBinding
 import com.ychong.lan_file_sharing.databinding.LayoutListHeaderBinding
-import com.ychong.lan_file_sharing.service.DownloadService
+import com.ychong.lan_file_sharing.service.FileService
 import com.ychong.lan_file_sharing.ui.SeeFileActivity
 import com.ychong.lan_file_sharing.utils.ApkUtils
 import com.ychong.lan_file_sharing.utils.FileUtils
@@ -37,7 +37,8 @@ class FileListAdapter(private val activity: Activity, private val files: Mutable
         this.files.addAll(list)
         notifyDataSetChanged()
     }
-    fun clearData(){
+
+    fun clearData() {
         this.files.clear()
         notifyDataSetChanged()
     }
@@ -72,27 +73,9 @@ class FileListAdapter(private val activity: Activity, private val files: Mutable
             if (popupWindow.isShowing) {
                 popupWindow.dismiss()
             }
-            val serviceIntent = Intent(activity,DownloadService::class.java)
+            val serviceIntent = Intent(activity, FileService::class.java)
             serviceIntent.putExtra("FileName",item.name)
             activity.startService(serviceIntent)
-//            Observable.create(ObservableOnSubscribe<Boolean> { emitter ->
-//                val result = FtpUtils.instance.download(item.name)
-//                if (result) {
-//                    emitter.onNext(result)
-//                } else {
-//                    emitter.onError(
-//                        CustomException(
-//                            "下载文件失败"
-//                        )
-//                    )
-//                }
-//            }).subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe {
-//                    item.isDownload = true
-//                    item.localPath = localPath + item.name
-//                    notifyItemChanged(position)
-//                }
         }
         installTv.setOnClickListener {
             if (popupWindow.isShowing) {
@@ -140,8 +123,8 @@ class FileListAdapter(private val activity: Activity, private val files: Mutable
                         }
                     }
 
-                    override fun error(e: CustomException) {
-                        Toast.makeText(activity, e.msg, Toast.LENGTH_SHORT).show()
+                    override fun error(e: Throwable) {
+                        Toast.makeText(activity, e.message, Toast.LENGTH_SHORT).show()
                     }
 
                 })

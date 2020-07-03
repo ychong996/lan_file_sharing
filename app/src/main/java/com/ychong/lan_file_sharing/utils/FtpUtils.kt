@@ -1,13 +1,11 @@
 package com.ychong.lan_file_sharing.utils
 
 import android.os.Environment
+import android.util.Log
 import org.apache.commons.net.ftp.FTPClient
 import org.apache.commons.net.ftp.FTPFile
 import org.apache.commons.net.ftp.FTPReply
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.OutputStream
+import java.io.*
 import java.lang.Exception
 import java.nio.charset.Charset
 
@@ -36,6 +34,7 @@ class FtpUtils {
             if (!client!!.isConnected) {
                 this.host = host
                 this.port = port
+                client!!.autodetectUTF8 = true
                 client!!.connect(this.host, this.port)
             }
             return true
@@ -90,6 +89,7 @@ class FtpUtils {
                 return result
             }
             val remotePath = "/"
+            client!!.controlEncoding = "UTF-8"
             // 转移到FTP服务器目录至指定的目录下
             client!!.changeWorkingDirectory(
                 String(
@@ -103,12 +103,13 @@ class FtpUtils {
             }
             val localFile = File(localPath + targetFileName)
 
-            val `is`: OutputStream = FileOutputStream(localFile)
-            client!!.retrieveFile(targetFileName, `is`)
-            `is`.close()
-            result = true
+            val fos = FileOutputStream(localFile)
+            val retrieve = client!!.retrieveFile(targetFileName, fos)
+            fos.close()
+            result = retrieve
         } catch (e: IOException) {
             e.printStackTrace()
+            result = false
         } finally {
             if (client!!.isConnected) {
                 try {
@@ -123,6 +124,9 @@ class FtpUtils {
     fun delete(fileName: String): Boolean {
         val result = false
         try {
+            if (client==null){
+                client = FTPClient()
+            }
             client!!.controlEncoding = System.getProperty("file.encoding")
             if (!client!!.isConnected) {
                 client!!.connect(this.host, this.port)
@@ -155,8 +159,54 @@ class FtpUtils {
         return false
     }
 
+    /**
+     * 上传文件
+     * @param pathname ftp服务保存地址
+     * @param fileName 上传到ftp的文件名
+     *  @param originfilename 待上传文件的名称（绝对地址） *
+     * @return
+     */
+    fun uploadFile(fileName:String, localFilePath:String):Boolean{
+        var flag = false;
+        var inputStream: FileInputStream? = null
+        try{
+            println("开始上传文件");
+            inputStream =  FileInputStream(File(localFilePath))
+            client!!.setFileType(FTPClient.BINARY_FILE_TYPE);
+            client!!.makeDirectory("/");
+            client!!.changeWorkingDirectory("/");
+            client!!.storeFile(fileName, inputStream);
+            inputStream.close();
+            client!!.logout();
+            flag = true;
+            println("上传文件成功");
+        }catch (e:Exception) {
+            println("上传文件失败");
+            e.printStackTrace();
+        }finally{
+            if(client!!.isConnected){
+                try{
+                    client!!.disconnect();
+                }catch(e:IOException){
+                    e.printStackTrace();
+                }
+            }
+            if(null != inputStream){
+                try {
+                    inputStream.close();
+                } catch (e:IOException) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return true;
+    }
+
     fun destroy() {
-        client!!.logout()
-        client = null
+        if (client != null && client!!.isAvailable) {
+            client!!.logout()
+            client = null
+        }
+
     }
 }

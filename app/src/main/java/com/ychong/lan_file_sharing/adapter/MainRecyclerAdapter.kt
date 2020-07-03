@@ -6,8 +6,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ychong.lan_file_sharing.data.MenuBean
 import com.ychong.lan_file_sharing.databinding.ItemMenuBinding
 
-class MainRecyclerAdapter(var list: MutableList<MenuBean>) :
+class MainRecyclerAdapter() :
     RecyclerView.Adapter<MainRecyclerAdapter.MainViewHolder>() {
+    private var list:MutableList<MenuBean> = ArrayList()
     private lateinit var itemClickListener: ItemClickListener
     fun setItemClickListener(itemClickListener: ItemClickListener) {
         this.itemClickListener = itemClickListener

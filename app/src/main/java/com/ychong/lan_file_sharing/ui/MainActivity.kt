@@ -2,6 +2,7 @@ package com.ychong.lan_file_sharing.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import androidx.appcompat.app.AppCompatActivity
@@ -11,6 +12,7 @@ import com.scwang.smartrefresh.layout.api.RefreshLayout
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener
 import com.ychong.lan_file_sharing.R
 import com.ychong.lan_file_sharing.adapter.MainRecyclerAdapter
+import com.ychong.lan_file_sharing.base.BaseActivity
 import com.ychong.lan_file_sharing.common.network.ApiService
 import com.ychong.lan_file_sharing.common.network.BaseObserver
 import com.ychong.lan_file_sharing.common.network.RetrofitFactory
@@ -22,25 +24,18 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import okhttp3.ResponseBody
 
-class MainActivity : AppCompatActivity(), OnRefreshListener {
+class MainActivity : BaseActivity(), OnRefreshListener {
     private lateinit var adapter: MainRecyclerAdapter
     private lateinit var binding: ActivityMainBinding
-    private var menuList: MutableList<MenuBean> = ArrayList()
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        initLayout()
-        initData()
-        initListener()
-    }
-
-    private fun initLayout() {
+    override fun initLayout() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
     }
 
-    private fun initData() {
-        adapter = MainRecyclerAdapter(menuList)
+    override fun initData() {
+        super.initData()
+        adapter = MainRecyclerAdapter()
         binding.recyclerView.layoutManager = GridLayoutManager(this, 3)
         binding.recyclerView.adapter = adapter
         binding.refreshLayout.setOnRefreshListener(this)
@@ -48,7 +43,7 @@ class MainActivity : AppCompatActivity(), OnRefreshListener {
 
     }
 
-    private fun initListener() {
+    override fun initListener() {
         adapter.setItemClickListener(object : MainRecyclerAdapter.ItemClickListener {
             override fun onClick(item: MenuBean) {
                 when (item.id) {

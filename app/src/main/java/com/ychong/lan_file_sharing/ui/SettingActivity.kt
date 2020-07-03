@@ -5,25 +5,19 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.ychong.lan_file_sharing.common.BaseConstant
 import com.ychong.lan_file_sharing.R
+import com.ychong.lan_file_sharing.base.BaseActivity
 import com.ychong.lan_file_sharing.databinding.ActivitySettingBinding
 import com.ychong.lan_file_sharing.utils.SPUtils
 
-class SettingActivity:AppCompatActivity(), View.OnClickListener {
+class SettingActivity:BaseActivity(), View.OnClickListener {
     private lateinit var binding: ActivitySettingBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        initLayout()
-        initData()
-        initListener()
-    }
-
-    private fun initListener() {
+     override fun initListener() {
         binding.headInclude.leftTv.setOnClickListener(this)
         binding.headInclude.rightTv.setOnClickListener(this)
     }
 
-    private fun initData() {
+     override fun initData() {
 
         binding.headInclude.titleTv.text = "设置"
         binding.headInclude.leftTv.visibility = View.VISIBLE
@@ -34,7 +28,7 @@ class SettingActivity:AppCompatActivity(), View.OnClickListener {
         binding.ftpPortEt.setText(SPUtils.getInstance(this).getInt(BaseConstant.SP_FTP_PORT))
     }
 
-    private fun initLayout() {
+     override fun initLayout() {
         binding = ActivitySettingBinding.inflate(layoutInflater)
         setContentView(binding.root)
     }

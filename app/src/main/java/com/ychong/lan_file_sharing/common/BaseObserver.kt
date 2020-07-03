@@ -21,5 +21,5 @@ abstract class BaseObserver<Any> : Observer<Any> {
     }
 
     abstract fun success(t: Any)
-    abstract fun error(e: CustomException)
+    abstract fun error(e: Throwable)
 }

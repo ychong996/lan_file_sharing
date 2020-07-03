@@ -7,64 +7,68 @@ import android.os.Bundle
 import android.os.Environment
 import android.text.TextUtils
 import android.util.Log
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.gyf.immersionbar.ImmersionBar
 import com.tencent.smtt.sdk.QbSdk
 import com.tencent.smtt.sdk.QbSdk.PreInitCallback
 import com.tencent.smtt.sdk.TbsReaderView
 import com.tencent.smtt.sdk.ValueCallback
 import com.tencent.smtt.sdk.WebView
+import com.ychong.lan_file_sharing.R
+import com.ychong.lan_file_sharing.base.BaseActivity
 import com.ychong.lan_file_sharing.common.BaseConstant
 import com.ychong.lan_file_sharing.databinding.ActivitySeeFileBinding
+import kotlinx.android.synthetic.main.layout_head.view.*
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.File
 import java.util.*
 
 
-class SeeFileActivity : AppCompatActivity(), PreInitCallback,
-    ValueCallback<String>, TbsReaderView.ReaderCallback {
+class SeeFileActivity : BaseActivity(), PreInitCallback,
+    ValueCallback<String>, TbsReaderView.ReaderCallback, View.OnClickListener {
     private lateinit var readerView: TbsReaderView
-    private val tempPath = Environment.getExternalStorageDirectory().absolutePath+"/lan_file_sharing/temp"
+    private val tempPath = Environment.getExternalStorageDirectory().absolutePath + "/lan_file_sharing/temp"
     private lateinit var webView: WebView
     private lateinit var binding: ActivitySeeFileBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        initLayout()
-        initData()
-        initListener()
-    }
-    private fun initLayout(){
+    override fun initLayout() {
         binding = ActivitySeeFileBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
     }
-    private fun initData(){
-        QbSdk.forceSysWebView()
-        QbSdk.initX5Environment(this, this)
+
+     override fun initData() {
+        binding.headerInclude.titleTv.text = "查看文件"
+        binding.headerInclude.leftTv.visibility = View.VISIBLE
+        readerView = TbsReaderView(this, this)
+        binding.wvLayout.addView(readerView)
         webView = WebView(this)
         val filePath = intent.getStringExtra("FILE_LOCAL_PATH")
-        if (filePath.isNullOrEmpty()){
-            Toast.makeText(this,"文件路径不存在",Toast.LENGTH_SHORT).show()
+        if (filePath.isNullOrEmpty()) {
+            Toast.makeText(this, "文件路径不存在", Toast.LENGTH_SHORT).show()
             return
         }
         val file = File(filePath)
-        if (!file.exists()){
-            Toast.makeText(this,"文件不存在",Toast.LENGTH_SHORT).show()
+        if (!file.exists()) {
+            Toast.makeText(this, "文件不存在", Toast.LENGTH_SHORT).show()
             return
         }
-        when(filePath.substring(filePath.lastIndexOf("."))){
-            ".txt" ->{
-                openFile(this,filePath)
+        when (filePath.substring(filePath.lastIndexOf("."))) {
+            ".txt", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx" -> {
+                openFile(filePath)
             }
-            ".apk" ->{
+            ".apk" -> {
 
             }
         }
     }
-    private fun initListener(){
 
+     override fun initListener() {
+        binding.headerInclude.leftTv.setOnClickListener(this)
     }
 
     override fun onCoreInitFinished() {
@@ -76,52 +80,32 @@ class SeeFileActivity : AppCompatActivity(), PreInitCallback,
     override fun onReceiveValue(p0: String?) {
     }
 
-    /**
-     * 打开文件阅读器
-     */
-    private fun openFileReader(
-        context: Context,
-        pathName: String?
-    ) {
-        val params =
-            HashMap<String, String>()
-        params["local"] = "false"
-        val Object = JSONObject()
-        try {
-            Object.put("pkgName", context.applicationContext.packageName)
-        } catch (e: JSONException) {
-            e.printStackTrace()
-        }
-        params["menuData"] = Object.toString()
-        QbSdk.getMiniQBVersion(context)
-        val ret = QbSdk.openFileReader(context, pathName, params, this)
-    }
+    private fun openFile(filePath: String) {
+        val mFile = File(filePath)
+        if (!TextUtils.isEmpty(mFile.toString())) {
+            //增加下面一句解决没有TbsReaderTemp文件夹存在导致加载文件失败
+            val bsReaderTempFile = File(tempPath);
 
-    private fun openFile(activity:Activity,filePath:String){
-        //通过bundle把文件传给x5,打开的事情交由x5处理
+            if (!bsReaderTempFile.exists()) {
+                val mkdir = bsReaderTempFile.mkdir();
+                if (!mkdir) {
+                }
+            }
 
-        //通过bundle把文件传给x5,打开的事情交由x5处理
-        val bundle = Bundle()
-        //传递文件路径
-        //传递文件路径
-        bundle.putString("filePath", filePath)
-        //临时的路径
-        //临时的路径
-        bundle.putString("tempPath", tempPath)
-        readerView = TbsReaderView(this,
-            TbsReaderView.ReaderCallback { integer: Int?, o: Any?, o1: Any? -> }
-        )
-        //加载文件前的初始化工作,加载支持不同格式的插件
-        //加载文件前的初始化工作,加载支持不同格式的插件
-        val b = readerView.preOpen(getFileType(filePath), true)
-        if (b) {
-            readerView.openFile(bundle)
-        }else{
-            Log.e("TAG","加载文件失败")
+            //加载文件
+            val localBundle = Bundle();
+            localBundle.putString("filePath", mFile.toString());
+
+            localBundle.putString("tempPath", tempPath)
+
+            val bool = this.readerView.preOpen(getFileType(mFile.toString()), false);
+            if (bool) {
+                this.readerView.openFile(localBundle);
+            }
+        } else {
+            Log.e("", "文件路径无效！");
         }
-        // 往容器里添加TbsReaderView控件
-        // 往容器里添加TbsReaderView控件
-        binding.wvLayout.addView(readerView)
+
     }
 
     override fun onCallBackAction(p0: Int?, p1: Any?, p2: Any?) {
@@ -144,7 +128,7 @@ class SeeFileActivity : AppCompatActivity(), PreInitCallback,
             return typeTag
         }
         typeTag = paramString.substring(i + 1)
-        Log.e("文件类型后缀 ",typeTag)
+        Log.e("文件类型后缀 ", typeTag)
         return typeTag
     }
 
@@ -158,5 +142,13 @@ class SeeFileActivity : AppCompatActivity(), PreInitCallback,
         readerView.onStop()
 
         super.onDestroy()
+    }
+
+    override fun onClick(p0: View?) {
+        when (p0!!.id) {
+            R.id.leftTv -> {
+                onBackPressed()
+            }
+        }
     }
 }

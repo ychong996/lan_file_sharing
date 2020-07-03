@@ -12,9 +12,11 @@ class FileUtils {
         val dirFile =File(localDir)
         if (dirFile.exists()&&dirFile.isDirectory){
             val files = dirFile.listFiles()
-            for (item in files){
-                if (fileName == item.name){
-                    return true
+            if (files!=null){
+                for (item in files){
+                    if (fileName == item.name){
+                        return true
+                    }
                 }
             }
         }
